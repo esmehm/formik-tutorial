@@ -1,11 +1,54 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Formik, Field, Form, ErrorMessage } from "formik";
+import { Formik, Form, useField } from "formik";
 import "./styles.css";
 import * as Yup from "yup";
 
+const MyTextInput = ({ label, ...props }) => {
+  const [field, meta] = useField(props);
+  return (
+    <>
+      <label htmlFor={props.id || props.name}>{label}</label>
+      <input className="text-input" {...field} {...props} />
+      {meta.touched && meta.error ? (
+        <div className="error">{meta.error}</div>
+      ) : null}
+    </>
+  );
+};
+
+const MyCheckbox = ({ children, ...props }) => {
+  const [field, meta] = useField({ ...props, type: 'checkbox' });
+  return (
+    <>
+      <label className="checkbox">
+        <input type="checkbox" {...field} {...props} />
+        {children}
+      </label>
+      {meta.touched && meta.error ? (
+        <div className="error">{meta.error}</div>
+      ) : null}
+    </>
+  );
+};
+
+const MySelect = ({ label, ...props }) => {
+  const [field, meta] = useField(props);
+  return (
+    <>
+      <label htmlFor={props.id || props.name}>{label}</label>
+      <select {...field} {...props} />
+      {meta.touched && meta.error ? (
+        <div className="error">{meta.error}</div>
+      ) : null}
+    </>
+  );
+};
+
 const SignupForm = () => {
   return (
+    <>
+    <h1>My Formik Form!</h1>
     <Formik
       initialValues={{ firstName: "", lastName: "", email: "" }}
       validationSchema={Yup.object({
@@ -26,19 +69,40 @@ const SignupForm = () => {
         }, 400);
       }}
     >
-      <Form>
-        <label htmlFor="firstName">First Name</label>
-        <Field name="firstName" type="text" />
-        <ErrorMessage name="firstName" />
-        <label htmlFor="lastName">Last Name</label>
-        <Field name="lastName" type="text" />
-        <ErrorMessage name="lastName" />
-        <label htmlFor="email">Email Address</label>
-        <Field name="email" type="email" />
-        <ErrorMessage name="email" />
-        <button type="submit">Submit</button>
-      </Form>
+      {formik => <Form>
+        <MyTextInput
+          label="First Name"
+          name="firstName"
+          type="text"
+          placeholder="John"
+        />
+        <MyTextInput
+          label="Last Name"
+          name="lastName"
+          type="text"
+          placeholder="Smith"
+        />
+        <MyTextInput
+          label="Email address"
+          name="email"
+          type="email"
+          placeholder="john@smith.co.uk"
+        />
+        <MySelect label="Job Type" name="jobType">
+            <option value="">Select a job type</option>
+            <option value="designer">Designer</option>
+            <option value="development">Developer</option>
+            <option value="product">Product Manager</option>
+            <option value="other">Other</option>
+        </MySelect>
+        <MyCheckbox name="acceptedTerms">
+            I accept the terms and conditions
+        </MyCheckbox>
+        <button type="submit" disabled={formik.isSubmitting}>Submit</button>
+        <button type="reset">Reset</button>
+      </Form>}
     </Formik>
+    </>
   );
 };
 
